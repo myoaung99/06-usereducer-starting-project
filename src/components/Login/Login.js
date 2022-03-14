@@ -10,18 +10,25 @@ const emailReducer = (state, action) => {
     return { value: action.val, isValid: action.val.includes("@") };
   }
 
+  // ပြန်ထွက်သွားရင် latest state ရဲ့ value နဲ့ valid ပြန်ပို့
   if (action.type === "INPUT_BLUR") {
     return { value: state.value, isValid: state.value.includes("@") };
   }
+
+  return { value: "", isValid: false };
 };
 
 const passwordReducer = (state, action) => {
   if (action.type === "USER_INPUT") {
     return { value: action.val, isValid: action.val.trim().length > 6 };
   }
+
+  // ပြန်ထွက်သွားရင် latest state ရဲ့ value နဲ့ valid ပြန်ပို့
   if (action.type === "INPUT_BLUR") {
     return { value: state.value, isValid: state.value.trim().length > 6 };
   }
+
+  return { value: "", isValid: false };
 };
 
 const Login = (props) => {
@@ -66,25 +73,25 @@ const Login = (props) => {
   // }, [enteredEmail, enteredPassword]);
 
   const emailChangeHandler = (event) => {
+    // dispatch the action
     dispatchEmail({ type: "USER_INPUT", val: event.target.value });
 
-    setFormIsValid(event.target.value.isValid && passwordState.isValid);
+    setFormIsValid(emailState.isValid && passwordState.isValid);
   };
 
   const passwordChangeHandler = (event) => {
-    dispatchPassword({ type: "USER_INPUT", value: event.target.value });
+    dispatchPassword({ type: "USER_INPUT", val: event.target.value });
 
-    setFormIsValid(
-      emailState.value.isValid && passwordState.value.trim().length > 6
-    );
+    setFormIsValid(emailState.isValid && passwordState.value);
   };
 
+  // check email when blue
   const validateEmailHandler = () => {
     dispatchEmail({ type: "INPUT_BLUR" });
   };
 
   const validatePasswordHandler = () => {
-    passwordReducer.isValid(passwordState.value.trim().length > 6);
+    dispatchPassword({ type: "INPUT_BLUR" });
   };
 
   const submitHandler = (event) => {
@@ -111,7 +118,7 @@ const Login = (props) => {
         </div>
         <div
           className={`${classes.control} ${
-            passwordReducer.value === false ? classes.invalid : ""
+            passwordState.isValid === false ? classes.invalid : ""
           }`}
         >
           <label htmlFor="password">Password</label>
